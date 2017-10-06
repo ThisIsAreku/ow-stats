@@ -1,0 +1,8 @@
+hash: 0c0197efae58fff74d02be3d3193a98e361f1e340340e8944ceb9c311fd82e59
+updated: 2017-10-05T22:33:21.719211868+02:00
+imports:
+- name: github.com/parnurzeal/gorequest
+  version: a578a48e8d6ca8b01a3b18314c43c6716bb5f5a3
+- name: github.com/PuerkitoBio/goquery
+  version: e1271ee34c6a305e38566ecd27ae374944907ee9
+testImports: []
