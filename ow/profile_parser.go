@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-var Request *gorequest.SuperAgent = gorequest.New().Timeout(2 * time.Second).Set("User-Agent", "OW-STATS/1.0")
+var Request *gorequest.SuperAgent = gorequest.New().Timeout(10 * time.Second).Set("User-Agent", "OW-STATS/1.0")
 
 var prestigeRegex = regexp.MustCompile(`(?P<Prestige>0x025[0-9]{13})`)
 
