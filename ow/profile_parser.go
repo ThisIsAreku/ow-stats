@@ -4,6 +4,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"strconv"
 	"regexp"
+	"strings"
 	"fmt"
 )
 
@@ -61,9 +62,13 @@ func (pp *ProfileParser) parseProfileStats() *ProfileStats {
 }
 
 func (pp *ProfileParser) parseGamemodeStats(selection *goquery.Selection) *GamemodeStats {
+	gameStats, rollingAverageStats, averageStats := pp.parseGameStats(selection)
 	return &GamemodeStats{
-		Competitive: selection.Is("#competitive"),
-		Overall:     pp.parseOverallStats(selection),
+		Competitive:    selection.Is("#competitive"),
+		Overall:        pp.parseOverallStats(selection),
+		Game:           gameStats,
+		RollingAverage: rollingAverageStats,
+		Average:        averageStats,
 	}
 }
 
@@ -131,4 +136,26 @@ func (pp *ProfileParser) parseOverallStats(selection *goquery.Selection) *Overal
 	}
 
 	return overallStats
+}
+
+func (pp *ProfileParser) parseGameStats(selection *goquery.Selection) (*GameStats, *RollingAverageStats, *AverageStats) {
+	gameStats := make(GameStats)
+	rollingAverageStats := make(RollingAverageStats)
+	averageStats := make(AverageStats)
+	selection.Find(`div[data-group-id="stats"][data-category-id="0x02E00000FFFFFFFF"] table.data-table tbody > tr`).Each(func(i int, row *goquery.Selection) {
+		key := row.Children().Eq(0).Text()
+		value := row.Children().Eq(1).Text()
+
+		sanitizedKey := SanitizeKey(key)
+		sanitizedValue := SanitizeValue(value)
+		if strings.HasSuffix(sanitizedKey, "_average") {
+			averageStats[sanitizedKey[:len(sanitizedKey)-8]+"_avg"] = sanitizedValue
+		} else if strings.HasSuffix(sanitizedKey, "_avg_per_10_min") {
+			rollingAverageStats[sanitizedKey[:len(sanitizedKey)-15]] = sanitizedValue
+		} else {
+			gameStats[sanitizedKey] = sanitizedValue
+		}
+	})
+
+	return &gameStats, &rollingAverageStats, &averageStats
 }
