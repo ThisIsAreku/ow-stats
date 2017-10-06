@@ -5,14 +5,26 @@ import (
 	"strings"
 	"strconv"
 	"log"
+	"fmt"
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
+	"golang.org/x/text/runes"
+	"unicode"
 )
 
 var spaceRegex = regexp.MustCompile(`[-\s]`)
 var nonAlphaRegex = regexp.MustCompile(`\W`)
 var normalizeRegex = regexp.MustCompile(`_{2,}`)
+var hourRegex = regexp.MustCompile(`(?P<Val>[0-9]+) hours?`)
+var minuteRegex = regexp.MustCompile(`(?P<Val>[0-9]+) minutes?`)
+var secondRegex = regexp.MustCompile(`(?P<Val>[0-9]+\.?[0-9]+) seconds?`)
+var percentRegex = regexp.MustCompile(`(?P<Val>[0-9]{1,3})\s?\%`)
+
+var t = transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
 
 func SanitizeKey(text string) string {
 	text = strings.ToLower(text)
+	text, _, _ = transform.String(t, text)
 	text = spaceRegex.ReplaceAllString(text, "_")
 	text = nonAlphaRegex.ReplaceAllString(text, "")
 	text = normalizeRegex.ReplaceAllString(text, "_")
@@ -31,7 +43,8 @@ func SanitizeValue(text string) float32 {
 	}
 
 	// value is a percentage
-	if text[len(text)-1:] == "%" {
+	if m := percentRegex.FindAllString(text, -1); len(m) > 0 {
+		fmt.Printf("TTTT: %+v\n", m)
 		if v, err := strconv.Atoi(text[:len(text)-1]); err == nil {
 			return float32(v) / 100
 		}
@@ -61,11 +74,11 @@ func SanitizeValue(text string) float32 {
 			s = fnToSimpleFloat32(parts[0])
 		}
 
-		return h + ((m + (s / 60)) / 60)
+		return h + ((m + (s / 60.0)) / 60.0)
 	}
 
-	if strings.HasSuffix(text, " hours") {
-		if v, err := strconv.Atoi(text[:len(text)-6]); err == nil {
+	if m := hourRegex.FindStringSubmatch(text); m != nil {
+		if v, err := strconv.Atoi(m[1]); err == nil {
 			return float32(v)
 		}
 
@@ -74,8 +87,8 @@ func SanitizeValue(text string) float32 {
 		return 0
 	}
 
-	if strings.HasSuffix(text, " minutes") {
-		if v, err := strconv.Atoi(text[:len(text)-6]); err == nil {
+	if m := minuteRegex.FindStringSubmatch(text); m != nil {
+		if v, err := strconv.Atoi(m[1]); err == nil {
 			return float32(v) / 60.0
 		}
 
@@ -84,8 +97,8 @@ func SanitizeValue(text string) float32 {
 		return 0
 	}
 
-	if strings.HasSuffix(text, " seconds") {
-		if v, err := strconv.Atoi(text[:len(text)-6]); err == nil {
+	if m := secondRegex.FindStringSubmatch(text); m != nil {
+		if v, err := strconv.Atoi(m[1]); err == nil {
 			return float32(v) / 3600.0
 		}
 
