@@ -63,16 +63,16 @@ func (pp *ProfileParser) Parse() (*Profile, error) {
 	}, nil
 }
 
-func (pp *ProfileParser) parseProfileStats() *ProfileStats {
-	return &ProfileStats{
+func (pp *ProfileParser) parseProfileStats() *PlayerStats {
+	return &PlayerStats{
 		Competitive: pp.parseGamemodeStats(pp.doc.Find("#competitive")),
 		Quickplay:   pp.parseGamemodeStats(pp.doc.Find("#quickplay")),
 	}
 }
 
-func (pp *ProfileParser) parseGamemodeStats(selection *goquery.Selection) *GamemodeStats {
+func (pp *ProfileParser) parseGamemodeStats(selection *goquery.Selection) *PlayerGamemodeStats {
 	gameStats, rollingAverageStats, averageStats := pp.parseGameStats(selection)
-	return &GamemodeStats{
+	return &PlayerGamemodeStats{
 		Competitive:    selection.Is("#competitive"),
 		Overall:        pp.parseOverallStats(selection),
 		Game:           gameStats,
@@ -81,7 +81,7 @@ func (pp *ProfileParser) parseGamemodeStats(selection *goquery.Selection) *Gamem
 	}
 }
 
-func (pp *ProfileParser) parseOverallStats(selection *goquery.Selection) *OverallStats {
+func (pp *ProfileParser) parseOverallStats(selection *goquery.Selection) *PlayerOverallStats {
 	masthead := pp.doc.Find("div.masthead-player").First()
 	playerLevel := masthead.Find("div.player-level").First()
 	statsBoxRows := selection.Find(`div[data-group-id="stats"][data-category-id="0x02E00000FFFFFFFF"] table.data-table`).FilterFunction(func(i int, selection *goquery.Selection) bool {
@@ -106,7 +106,7 @@ func (pp *ProfileParser) parseOverallStats(selection *goquery.Selection) *Overal
 		return r
 	}
 
-	overallStats := &OverallStats{
+	overallStats := &PlayerOverallStats{
 		Comprank: func() int {
 			if comprank := masthead.Find("div.competitive-rank > div").First(); comprank.Length() == 1 {
 				if v, err := strconv.Atoi(comprank.Text()); err == nil {
@@ -147,10 +147,10 @@ func (pp *ProfileParser) parseOverallStats(selection *goquery.Selection) *Overal
 	return overallStats
 }
 
-func (pp *ProfileParser) parseGameStats(selection *goquery.Selection) (*GameStats, *RollingAverageStats, *AverageStats) {
-	gameStats := make(GameStats)
-	rollingAverageStats := make(RollingAverageStats)
-	averageStats := make(AverageStats)
+func (pp *ProfileParser) parseGameStats(selection *goquery.Selection) (*PlayerGameStats, *PlayerRollingAverageStats, *PlayerAverageStats) {
+	gameStats := make(PlayerGameStats)
+	rollingAverageStats := make(PlayerRollingAverageStats)
+	averageStats := make(PlayerAverageStats)
 	selection.Find(`div[data-group-id="stats"][data-category-id="0x02E00000FFFFFFFF"] table.data-table tbody > tr`).Each(func(i int, row *goquery.Selection) {
 		key := row.Children().Eq(0).Text()
 		value := row.Children().Eq(1).Text()

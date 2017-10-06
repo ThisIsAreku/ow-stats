@@ -1,27 +1,29 @@
 package ow
 
 type Profile struct {
-	Stats *ProfileStats `json:"stats"`
+	Stats  *PlayerStats `json:"stats"`
+	Heroes *HeroesStats `json:"heroes"`
 }
 
-type ProfileStats struct {
-	Competitive *GamemodeStats `json:"competitive"`
-	Quickplay   *GamemodeStats `json:"quickplay"`
+// Player
+type PlayerGameStats map[string]float32
+type PlayerAverageStats map[string]float32
+type PlayerRollingAverageStats map[string]float32
+
+type PlayerStats struct {
+	Competitive *PlayerGamemodeStats `json:"competitive"`
+	Quickplay   *PlayerGamemodeStats `json:"quickplay"`
 }
 
-type GamemodeStats struct {
-	Competitive    bool                 `json:"competitive"`
-	Average        *AverageStats        `json:"average_stats"`
-	RollingAverage *RollingAverageStats `json:"rolling_average_stats"`
-	Overall        *OverallStats        `json:"overall_stats"`
-	Game           *GameStats           `json:"game_stats"`
+type PlayerGamemodeStats struct {
+	Competitive    bool                       `json:"competitive"`
+	Average        *PlayerAverageStats        `json:"average_stats"`
+	RollingAverage *PlayerRollingAverageStats `json:"rolling_average_stats"`
+	Overall        *PlayerOverallStats        `json:"overall_stats"`
+	Game           *PlayerGameStats           `json:"game_stats"`
 }
 
-type GameStats map[string]float32
-type AverageStats map[string]float32
-type RollingAverageStats map[string]float32
-
-type OverallStats struct {
+type PlayerOverallStats struct {
 	Level    int     `json:"level"`
 	Comprank int     `json:"comprank"`
 	Games    int     `json:"games"`
@@ -30,4 +32,34 @@ type OverallStats struct {
 	Wins     int     `json:"wins"`
 	Ties     int     `json:"ties"`
 	Prestige int     `json:"prestige"`
+}
+
+// Heroes
+type HeroesGamemodeStats map[string]*HeroGamemodeStats
+type HeroPlaytimeStats map[string]float32
+type HeroAverageStats map[string]float32
+type HeroRollingAverageStats map[string]float32
+type HeroSpecificStats map[string]float32
+type HeroGeneralStats map[string]float32
+
+type HeroesStats struct {
+	Playtime *HeroesPlaytimeStats `json:"playtime"`
+	Stats    *HeroesStatsData     `json:"stats"`
+}
+
+type HeroesStatsData struct {
+	Competitive *HeroesGamemodeStats `json:"competitive"`
+	Quickplay   *HeroesGamemodeStats `json:"quickplay"`
+}
+
+type HeroesPlaytimeStats struct {
+	Competitive *HeroPlaytimeStats `json:"competitive"`
+	Quickplay   *HeroPlaytimeStats `json:"quickplay"`
+}
+
+type HeroGamemodeStats struct {
+	Average        *HeroAverageStats        `json:"average_stats"`
+	RollingAverage *HeroRollingAverageStats `json:"rolling_average_stats"`
+	Overall        *HeroSpecificStats       `json:"hero_stats"`
+	Game           *HeroGeneralStats        `json:"general_stats"`
 }
