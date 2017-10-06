@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/PuerkitoBio/goquery"
 	"log"
 	"encoding/json"
 	"fmt"
@@ -9,30 +8,19 @@ import (
 	"os"
 )
 
-const (
-	URL = "https://playoverwatch.com/en-us/career/pc/eu/"
-)
-
-func fetchDocument(battleTag string) (doc *goquery.Document) {
-	doc, err := goquery.NewDocument(URL + battleTag)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	return doc
-}
-
 func main() {
-	doc := fetchDocument(os.Getenv("BATTLETAG"))
-
-	pp := ow.NewProfileParser(doc)
+	pp := ow.NewProfileParser("eu", os.Getenv("BATTLETAG"))
 
 	profile, err := pp.Parse()
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	out, err := json.MarshalIndent(profile, "", "  ")
+	out, err := json.MarshalIndent(struct {
+		Eu *ow.Profile `json:"eu"`
+	}{
+		profile,
+	}, "", "  ")
 	if err != nil {
 		log.Fatal(err.Error())
 	}

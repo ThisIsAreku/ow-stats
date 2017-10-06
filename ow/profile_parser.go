@@ -4,22 +4,50 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"strconv"
 	"regexp"
+	"fmt"
 )
 
 var prestigeRegex = regexp.MustCompile(`(?P<Prestige>0x025[0-9]{13})`)
 
 type ProfileParser struct {
-	doc      *goquery.Document
-	prestige int
+	doc       *goquery.Document
+	platform  string
+	region    string
+	battleTag string
 }
 
-func NewProfileParser(doc *goquery.Document) *ProfileParser {
+func (pp *ProfileParser) buildProfileUrl() string {
+	return fmt.Sprintf("https://playoverwatch.com/en-us/career/%s/%s/%s",
+		pp.platform,
+		pp.region,
+		pp.battleTag,
+	)
+}
+
+func (pp *ProfileParser) fetchDocument() error {
+	doc, err := goquery.NewDocument(pp.buildProfileUrl())
+	if err != nil {
+		return err
+	}
+
+	pp.doc = doc
+
+	return nil
+}
+
+func NewProfileParser(region string, battleTag string) *ProfileParser {
 	return &ProfileParser{
-		doc: doc,
+		platform:  "pc",
+		region:    region,
+		battleTag: battleTag,
 	}
 }
 
 func (pp *ProfileParser) Parse() (*Profile, error) {
+	if err := pp.fetchDocument(); err != nil {
+		return nil, err
+	}
+
 	return &Profile{
 		Stats: pp.parseProfileStats(),
 	}, nil
@@ -46,14 +74,6 @@ func (pp *ProfileParser) parseOverallStats(selection *goquery.Selection) *Overal
 		boxTitle := selection.Find("thead h5.stat-title").First().Text()
 		return boxTitle == "Game" || boxTitle == "Miscellaneous"
 	}).Find("tbody > tr")
-
-	//statsBoxRows.Each(func(i int, selection *goquery.Selection) {
-	//	fmt.Printf("%s => %s\n",
-	//		selection.Children().Eq(0).Text(),
-	//		selection.Children().Eq(1).Text(),
-	//	)
-	//})
-	//fmt.Println()
 
 	fnFindStat := func(statName string) int {
 		r := 0
