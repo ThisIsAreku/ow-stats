@@ -5,7 +5,6 @@ import (
 	"strings"
 	"strconv"
 	"log"
-	"fmt"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
 	"golang.org/x/text/runes"
@@ -38,14 +37,13 @@ func SanitizeValue(text string) float32 {
 	text = strings.ToLower(text)
 
 	longNum := strings.Replace(text, ",", "", -1)
-	if v, err := strconv.Atoi(longNum); err == nil {
+	if v, err := strconv.ParseFloat(longNum, 32); err == nil {
 		return float32(v)
 	}
 
 	// value is a percentage
-	if m := percentRegex.FindAllString(text, -1); len(m) > 0 {
-		fmt.Printf("TTTT: %+v\n", m)
-		if v, err := strconv.Atoi(text[:len(text)-1]); err == nil {
+	if m := percentRegex.FindStringSubmatch(text); m != nil {
+		if v, err := strconv.Atoi(m[1]); err == nil {
 			return float32(v) / 100
 		}
 
