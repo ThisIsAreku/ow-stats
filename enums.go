@@ -1,4 +1,4 @@
-package ow
+package ow_stats
 
 var PRESTIGES = map[string]int{
 	// Bronze 0 - 5

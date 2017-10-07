@@ -4,8 +4,8 @@ import (
 	"log"
 	"encoding/json"
 	"fmt"
-	"github.com/ThisIsAreku/ow-stats/ow"
 	"os"
+	ow "github.com/ThisIsAreku/ow-stats"
 )
 
 func main() {

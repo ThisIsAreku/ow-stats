@@ -1,4 +1,4 @@
-package ow
+package ow_stats
 
 type Profile struct {
 	Stats  *PlayerStats `json:"stats"`

@@ -1,4 +1,4 @@
-package ow
+package ow_stats
 
 import (
 	"github.com/PuerkitoBio/goquery"
