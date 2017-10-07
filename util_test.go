@@ -25,6 +25,10 @@ var valueTests = []struct {
 	{"1 hour", 1},
 	{"5 hours", 5},
 	{"30 minutes", 0.5},
+	{"1 minute", 1 / 60.},
+	{"50 seconds", 50 / 3600.},
+	{"2.8 seconds", 2.8 / 3600.},
+	{"1 second", 1 / 3600.},
 	{"2.8", 2.8},
 }
 

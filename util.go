@@ -16,7 +16,7 @@ var nonAlphaRegex = regexp.MustCompile(`\W`)
 var normalizeRegex = regexp.MustCompile(`_{2,}`)
 var hourRegex = regexp.MustCompile(`(?P<Val>[0-9]+) hours?`)
 var minuteRegex = regexp.MustCompile(`(?P<Val>[0-9]+) minutes?`)
-var secondRegex = regexp.MustCompile(`(?P<Val>[0-9]+\.?[0-9]+) seconds?`)
+var secondRegex = regexp.MustCompile(`(?P<Val>[0-9]+(?:\.[0-9]+)?) seconds?`)
 var percentRegex = regexp.MustCompile(`(?P<Val>[0-9]{1,3})\s?\%`)
 
 var t = transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
@@ -36,15 +36,36 @@ func SanitizeKey(text string) string {
 func SanitizeValue(text string) float32 {
 	text = strings.ToLower(text)
 
-	longNum := strings.Replace(text, ",", "", -1)
-	if v, err := strconv.ParseFloat(longNum, 32); err == nil {
+	fnParseFloat := func(text string) (float32, error) {
+		longNum := strings.Replace(text, ",", "", -1)
+		v, err := strconv.ParseFloat(longNum, 32)
+		if err != nil {
+			return 0., err
+		}
+
+		return float32(v), nil
+	}
+
+	fnParseSimpleFloat32 := func(t string) float32 {
+		if v, err := strconv.Atoi(t); err == nil {
+			return float32(v)
+		}
+
+		return 0
+	}
+
+	if text == "--" {
+		return .0
+	}
+
+	if v, err := fnParseFloat(text); err == nil {
 		return float32(v)
 	}
 
 	// value is a percentage
 	if m := percentRegex.FindStringSubmatch(text); m != nil {
-		if v, err := strconv.Atoi(m[1]); err == nil {
-			return float32(v) / 100
+		if v, err := fnParseFloat(m[1]); err == nil {
+			return v / 100.
 		}
 
 		log.Printf("Value is a percentage but failed to decode: %s\n", text)
@@ -54,30 +75,23 @@ func SanitizeValue(text string) float32 {
 
 	if strings.ContainsRune(text, ':') {
 		parts := strings.Split(text, ":")
-		fnToSimpleFloat32 := func(t string) float32 {
-			if v, err := strconv.Atoi(t); err == nil {
-				return float32(v)
-			}
-
-			return 0
-		}
 
 		var h, m, s float32
 		switch len(parts) {
 		case 3:
-			h, m, s = fnToSimpleFloat32(parts[0]), fnToSimpleFloat32(parts[1]), fnToSimpleFloat32(parts[2])
+			h, m, s = fnParseSimpleFloat32(parts[0]), fnParseSimpleFloat32(parts[1]), fnParseSimpleFloat32(parts[2])
 		case 2:
-			m, s = fnToSimpleFloat32(parts[0]), fnToSimpleFloat32(parts[1])
+			m, s = fnParseSimpleFloat32(parts[0]), fnParseSimpleFloat32(parts[1])
 		case 1:
-			s = fnToSimpleFloat32(parts[0])
+			s = fnParseSimpleFloat32(parts[0])
 		}
 
 		return h + ((m + (s / 60.0)) / 60.0)
 	}
 
 	if m := hourRegex.FindStringSubmatch(text); m != nil {
-		if v, err := strconv.Atoi(m[1]); err == nil {
-			return float32(v)
+		if v, err := fnParseFloat(m[1]); err == nil {
+			return v
 		}
 
 		log.Printf("Value is an hour but failed to decode: %s\n", text)
@@ -86,8 +100,8 @@ func SanitizeValue(text string) float32 {
 	}
 
 	if m := minuteRegex.FindStringSubmatch(text); m != nil {
-		if v, err := strconv.Atoi(m[1]); err == nil {
-			return float32(v) / 60.0
+		if v, err := fnParseFloat(m[1]); err == nil {
+			return v / 60.0
 		}
 
 		log.Printf("Value is a minute but failed to decode: %s\n", text)
@@ -96,8 +110,8 @@ func SanitizeValue(text string) float32 {
 	}
 
 	if m := secondRegex.FindStringSubmatch(text); m != nil {
-		if v, err := strconv.Atoi(m[1]); err == nil {
-			return float32(v) / 3600.0
+		if v, err := fnParseFloat(m[1]); err == nil {
+			return v / 3600.0
 		}
 
 		log.Printf("Value is a second but failed to decode: %s\n", text)
@@ -105,6 +119,8 @@ func SanitizeValue(text string) float32 {
 		return 0
 
 	}
+
+	log.Printf("Unable to find anything to parse: %s\n", text)
 
 	return 0
 }
