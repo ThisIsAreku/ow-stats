@@ -59,7 +59,8 @@ func (pp *ProfileParser) Parse() (*Profile, error) {
 	}
 
 	return &Profile{
-		Stats: pp.parseProfileStats(),
+		Stats:  pp.parseProfileStats(),
+		Heroes: pp.parseHeroesStats(),
 	}, nil
 }
 
@@ -166,5 +167,93 @@ func (pp *ProfileParser) parseGameStats(selection *goquery.Selection) (*PlayerGa
 		}
 	})
 
+	gameStats["kpd"] = 0
+	if deaths, ok := gameStats["deaths"]; ok && deaths > 0 {
+		eliminations := gameStats["eliminations"]
+		gameStats["kpd"] = eliminations / deaths
+	}
+
 	return &gameStats, &rollingAverageStats, &averageStats
+}
+
+func (pp *ProfileParser) parseHeroesStats() *HeroesStats {
+	return &HeroesStats{
+		Playtime: pp.parsePlaytimeStats(),
+		Stats:    pp.parseHeroesStatsData(),
+	}
+}
+
+func (pp *ProfileParser) parsePlaytimeStats() *HeroesPlaytimeStats {
+	return &HeroesPlaytimeStats{
+		Competitive: pp.parseHeroesPlaytimeStats(pp.doc.Find("#competitive")),
+		Quickplay:   pp.parseHeroesPlaytimeStats(pp.doc.Find("#quickplay")),
+	}
+}
+
+func (pp *ProfileParser) parseHeroesPlaytimeStats(selection *goquery.Selection) *HeroPlaytimeStats {
+	heroPlaytimeStats := make(HeroPlaytimeStats)
+
+	selection.Find(`div[data-group-id="comparisons"][data-category-id="overwatch.guid.0x0860000000000021"] div.bar-text`).Each(func(i int, row *goquery.Selection) {
+		key := row.Find("div.title").Text()
+		value := row.Find("div.description").Text()
+
+		heroPlaytimeStats[SanitizeKey(key)] = SanitizeValue(value)
+	})
+
+	return &heroPlaytimeStats
+}
+
+func (pp *ProfileParser) parseHeroesStatsData() *HeroesStatsData {
+	return &HeroesStatsData{
+		Competitive: pp.parseHeroesGamemodeStats(pp.doc.Find("#competitive")),
+		Quickplay:   pp.parseHeroesGamemodeStats(pp.doc.Find("#quickplay")),
+	}
+}
+
+func (pp *ProfileParser) parseHeroesGamemodeStats(selection *goquery.Selection) *HeroesGamemodeStats {
+	gamemodeStats := make(HeroesGamemodeStats)
+
+	for heroName, heroId := range HEROES {
+		heroPanel := selection.Find(fmt.Sprintf(`div[data-group-id="stats"][data-category-id="%s"]`, heroId)).First()
+		gamemodeStats[heroName] = pp.parseHeroGamemodeStats(heroPanel)
+	}
+
+	return &gamemodeStats
+}
+
+func (pp *ProfileParser) parseHeroGamemodeStats(selection *goquery.Selection) (*HeroGamemodeStats) {
+	generalStats := make(HeroGeneralStats)
+	specificStats := make(HeroSpecificStats)
+	rollingAverageStats := make(HeroRollingAverageStats)
+	averageStats := make(HeroAverageStats)
+	selection.Find(`table.data-table`).Each(func(i int, box *goquery.Selection) {
+		boxTitle := box.Find("tr h5.stat-title").Text()
+		rows := box.Find("tbody > tr")
+		isSpecific := boxTitle == "Hero Specific"
+
+		rows.Each(func(i int, row *goquery.Selection) {
+			key := row.Children().Eq(0).Text()
+			value := row.Children().Eq(1).Text()
+
+			sanitizedKey := SanitizeKey(key)
+			sanitizedValue := SanitizeValue(value)
+			// Why is it different from Profile parsing ?
+			if strings.HasSuffix(sanitizedKey, "_average") || strings.HasPrefix(sanitizedKey,"average_") {
+				averageStats[sanitizedKey] = sanitizedValue
+			} else if strings.HasSuffix(sanitizedKey, "_avg_per_10_min") {
+				rollingAverageStats[sanitizedKey[:len(sanitizedKey)-15]] = sanitizedValue
+			} else if isSpecific {
+				specificStats[sanitizedKey] = sanitizedValue
+			} else {
+				generalStats[sanitizedKey] = sanitizedValue
+			}
+		})
+	})
+
+	return &HeroGamemodeStats{
+		Average:        &averageStats,
+		RollingAverage: &rollingAverageStats,
+		General:        &generalStats,
+		Specific:       &specificStats,
+	}
 }

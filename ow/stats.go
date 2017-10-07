@@ -60,6 +60,6 @@ type HeroesPlaytimeStats struct {
 type HeroGamemodeStats struct {
 	Average        *HeroAverageStats        `json:"average_stats"`
 	RollingAverage *HeroRollingAverageStats `json:"rolling_average_stats"`
-	Overall        *HeroSpecificStats       `json:"hero_stats"`
-	Game           *HeroGeneralStats        `json:"general_stats"`
+	Specific       *HeroSpecificStats       `json:"hero_stats"`
+	General        *HeroGeneralStats        `json:"general_stats"`
 }
