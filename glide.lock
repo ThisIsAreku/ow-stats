@@ -1,8 +1,10 @@
-hash: 0c0197efae58fff74d02be3d3193a98e361f1e340340e8944ceb9c311fd82e59
-updated: 2017-10-06T21:10:37.41816595+02:00
+hash: 569616ecdacbc6104c46dee34e644d1be071fcadf1c815f205c21173d53bec68
+updated: 2017-10-07T12:04:17.325407216+02:00
 imports:
 - name: github.com/andybalholm/cascadia
   version: 349dd0209470eabd9514242c688c403c0926d266
+- name: github.com/go-test/deep
+  version: f49763a6ea0a91026be26f8213bebee726b4185f
 - name: github.com/moul/http2curl
   version: 9ac6cf4d929b2fa8fd2d2e6dec5bb0feb4f4911d
 - name: github.com/parnurzeal/gorequest
@@ -17,4 +19,10 @@ imports:
   - html
   - html/atom
   - publicsuffix
+- name: golang.org/x/text
+  version: 825fc78a2fd6fa0a5447e300189e3219e05e1f25
+  subpackages:
+  - runes
+  - transform
+  - unicode/norm
 testImports: []
