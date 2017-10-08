@@ -174,7 +174,7 @@ func (pp *ProfileParser) parseGameStats(selection *goquery.Selection) (*PlayerGa
 		key := row.Children().Eq(0).Text()
 		value := row.Children().Eq(1).Text()
 
-		sanitizedKey := SanitizeKey(key)
+		sanitizedKey := SanitizeAndPluralizeKey(key)
 		sanitizedValue := SanitizeValue(value)
 		if strings.HasSuffix(sanitizedKey, "_average") {
 			averageStats[sanitizedKey[:len(sanitizedKey)-8]+"_avg"] = sanitizedValue
@@ -224,8 +224,8 @@ func (pp *ProfileParser) parseHeroesPlaytimeStats(selection *goquery.Selection) 
 		key := row.Find("div.title").Text()
 		value := row.Find("div.description").Text()
 
-		if sanitizedValue := SanitizeValue(value); sanitizedValue != 0 {
-			heroPlaytimeStats[SanitizeKey(key)] = sanitizedValue
+		if sanitizedValue := SanitizeValue(value); sanitizedValue != 0. {
+			heroPlaytimeStats[SanitizeAndPluralizeKey(key)] = sanitizedValue
 		}
 	})
 
@@ -270,7 +270,7 @@ func (pp *ProfileParser) parseHeroGamemodeStats(selection *goquery.Selection) (*
 			key := row.Children().Eq(0).Text()
 			value := row.Children().Eq(1).Text()
 
-			sanitizedKey := SanitizeKey(key)
+			sanitizedKey := SanitizeAndPluralizeKey(key)
 			sanitizedValue := SanitizeValue(value)
 			// Why is it different from Profile parsing ?
 			if strings.HasSuffix(sanitizedKey, "_average") || strings.HasPrefix(sanitizedKey, "average_") {
@@ -295,4 +295,8 @@ func (pp *ProfileParser) parseHeroGamemodeStats(selection *goquery.Selection) (*
 
 func emptyGamemodeData(selection *goquery.Selection) bool {
 	return strings.TrimSpace(selection.Find("h6.u-align-center").Text()) == "We don't have any data for this account in this mode yet."
+}
+
+func SanitizeAndPluralizeKey(text string) string {
+	return Pluralizer(SanitizeKey(text))
 }
