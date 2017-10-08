@@ -1,8 +1,8 @@
 package ow_stats
 
 type Profile struct {
-	Stats  *PlayerStats `json:"stats"`
-	Heroes *HeroesStats `json:"heroes"`
+	Stats  *PlayerStats `json:"stats,omitempty"`
+	Heroes *HeroesStats `json:"heroes,omitempty"`
 }
 
 // Player
@@ -11,27 +11,27 @@ type PlayerAverageStats map[string]float32
 type PlayerRollingAverageStats map[string]float32
 
 type PlayerStats struct {
-	Competitive *PlayerGamemodeStats `json:"competitive"`
-	Quickplay   *PlayerGamemodeStats `json:"quickplay"`
+	Competitive *PlayerGamemodeStats `json:"competitive,omitempty"`
+	Quickplay   *PlayerGamemodeStats `json:"quickplay,omitempty"`
 }
 
 type PlayerGamemodeStats struct {
-	Competitive    bool                       `json:"competitive"`
-	Average        *PlayerAverageStats        `json:"average_stats"`
-	RollingAverage *PlayerRollingAverageStats `json:"rolling_average_stats"`
-	Overall        *PlayerOverallStats        `json:"overall_stats"`
-	Game           *PlayerGameStats           `json:"game_stats"`
+	Competitive    bool                       `json:"competitive,omitempty"`
+	Average        *PlayerAverageStats        `json:"average_stats,omitempty"`
+	RollingAverage *PlayerRollingAverageStats `json:"rolling_average_stats,omitempty"`
+	Overall        *PlayerOverallStats        `json:"overall_stats,omitempty"`
+	Game           *PlayerGameStats           `json:"game_stats,omitempty"`
 }
 
 type PlayerOverallStats struct {
-	Level    int     `json:"level"`
-	Comprank int     `json:"comprank"`
-	Games    int     `json:"games"`
-	WinRate  float32 `json:"win_rate"`
-	Losses   int     `json:"losses"`
-	Wins     int     `json:"wins"`
-	Ties     int     `json:"ties"`
-	Prestige int     `json:"prestige"`
+	Level    int     `json:"level,omitempty"`
+	Comprank int     `json:"comprank,omitempty"`
+	Games    int     `json:"games,omitempty"`
+	WinRate  float32 `json:"win_rate,omitempty"`
+	Losses   int     `json:"losses,omitempty"`
+	Wins     int     `json:"wins,omitempty"`
+	Ties     int     `json:"ties,omitempty"`
+	Prestige int     `json:"prestige,omitempty"`
 }
 
 // Heroes
@@ -43,23 +43,23 @@ type HeroSpecificStats map[string]float32
 type HeroGeneralStats map[string]float32
 
 type HeroesStats struct {
-	Playtime *HeroesPlaytimeStats `json:"playtime"`
-	Stats    *HeroesStatsData     `json:"stats"`
+	Playtime *HeroesPlaytimeStats `json:"playtime,omitempty"`
+	Stats    *HeroesStatsData     `json:"stats,omitempty"`
 }
 
 type HeroesStatsData struct {
-	Competitive *HeroesGamemodeStats `json:"competitive"`
-	Quickplay   *HeroesGamemodeStats `json:"quickplay"`
+	Competitive *HeroesGamemodeStats `json:"competitive,omitempty"`
+	Quickplay   *HeroesGamemodeStats `json:"quickplay,omitempty"`
 }
 
 type HeroesPlaytimeStats struct {
-	Competitive *HeroPlaytimeStats `json:"competitive"`
-	Quickplay   *HeroPlaytimeStats `json:"quickplay"`
+	Competitive *HeroPlaytimeStats `json:"competitive,omitempty"`
+	Quickplay   *HeroPlaytimeStats `json:"quickplay,omitempty"`
 }
 
 type HeroGamemodeStats struct {
-	Average        *HeroAverageStats        `json:"average_stats"`
-	RollingAverage *HeroRollingAverageStats `json:"rolling_average_stats"`
-	Specific       *HeroSpecificStats       `json:"hero_stats"`
-	General        *HeroGeneralStats        `json:"general_stats"`
+	Average        *HeroAverageStats        `json:"average_stats,omitempty"`
+	RollingAverage *HeroRollingAverageStats `json:"rolling_average_stats,omitempty"`
+	Specific       *HeroSpecificStats       `json:"hero_stats,omitempty"`
+	General        *HeroGeneralStats        `json:"general_stats,omitempty"`
 }
