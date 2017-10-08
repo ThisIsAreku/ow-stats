@@ -170,7 +170,7 @@ func (pp *ProfileParser) parseGameStats(selection *goquery.Selection) (*PlayerGa
 		return nil, nil, nil
 	}
 
-	selection.Find(`table.data-table tbody > tr`).Each(func(i int, row *goquery.Selection) {
+	statsDiv.Find(`table.data-table tbody > tr`).Each(func(i int, row *goquery.Selection) {
 		key := row.Children().Eq(0).Text()
 		value := row.Children().Eq(1).Text()
 
