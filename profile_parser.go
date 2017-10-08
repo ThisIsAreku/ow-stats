@@ -154,7 +154,6 @@ func (pp *ProfileParser) parseOverallStats(selection *goquery.Selection) *Player
 	}
 
 	overallStats.FullLevel = overallStats.Prestige*100 + overallStats.Level
-	fmt.Printf("%d: %d*100+%d\n", overallStats.FullLevel, overallStats.Prestige, overallStats.Level)
 
 	return overallStats
 }
