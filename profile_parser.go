@@ -149,8 +149,10 @@ func (pp *ProfileParser) parseOverallStats(selection *goquery.Selection) *Player
 		Ties:   fnFindStat("Games Tied"),
 	}
 
+	overallStats.WinRate = nil
 	if overallStats.Games != 0 {
-		overallStats.WinRate = float32((float32(overallStats.Wins) / float32(overallStats.Games-overallStats.Ties)) * 100.0)
+		wr := float32((float32(overallStats.Wins) / float32(overallStats.Games-overallStats.Ties)) * 100.0)
+		overallStats.WinRate = &wr
 	}
 
 	overallStats.FullLevel = overallStats.Prestige*100 + overallStats.Level
