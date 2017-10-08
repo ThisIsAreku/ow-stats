@@ -24,14 +24,15 @@ type PlayerGamemodeStats struct {
 }
 
 type PlayerOverallStats struct {
-	Level    int     `json:"level,omitempty"`
-	Comprank int     `json:"comprank,omitempty"`
-	Games    int     `json:"games,omitempty"`
-	WinRate  float32 `json:"win_rate,omitempty"`
-	Losses   int     `json:"losses,omitempty"`
-	Wins     int     `json:"wins,omitempty"`
-	Ties     int     `json:"ties,omitempty"`
-	Prestige int     `json:"prestige,omitempty"`
+	Level     int     `json:"level"`
+	Comprank  int     `json:"comprank"`
+	Games     int     `json:"games"`
+	WinRate   float32 `json:"win_rate"`
+	Losses    int     `json:"losses"`
+	Wins      int     `json:"wins"`
+	Ties      int     `json:"ties"`
+	Prestige  int     `json:"prestige"`
+	FullLevel int     `json:"full_level"`
 }
 
 // Heroes

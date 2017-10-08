@@ -8,11 +8,12 @@ import (
 	"fmt"
 	"github.com/parnurzeal/gorequest"
 	"time"
+	"log"
 )
 
 var Request *gorequest.SuperAgent = gorequest.New().Timeout(10 * time.Second).Set("User-Agent", "OW-STATS/1.0")
 
-var prestigeRegex = regexp.MustCompile(`(?P<Prestige>0x025[0-9]{13})`)
+var prestigeRegex = regexp.MustCompile(`(?P<Prestige>0x025[0-9A-F]{13})`)
 
 type ProfileParser struct {
 	doc       *goquery.Document
@@ -131,10 +132,13 @@ func (pp *ProfileParser) parseOverallStats(selection *goquery.Selection) *Player
 		}(),
 
 		Prestige: func() int {
-			prestigeKey := prestigeRegex.FindString(playerLevel.AttrOr("style", ""))
+			styleAttr := playerLevel.AttrOr("style", "")
+			prestigeKey := prestigeRegex.FindString(styleAttr)
 			if prestige, ok := PRESTIGES[prestigeKey]; ok {
 				return prestige
 			}
+
+			log.Printf("prestige '%s' was not found (tag is : '%s')\n", prestigeKey, styleAttr)
 
 			return 0
 		}(),
@@ -148,6 +152,9 @@ func (pp *ProfileParser) parseOverallStats(selection *goquery.Selection) *Player
 	if overallStats.Games != 0 {
 		overallStats.WinRate = float32((float32(overallStats.Wins) / float32(overallStats.Games-overallStats.Ties)) * 100.0)
 	}
+
+	overallStats.FullLevel = overallStats.Prestige*100 + overallStats.Level
+	fmt.Printf("%d: %d*100+%d\n", overallStats.FullLevel, overallStats.Prestige, overallStats.Level)
 
 	return overallStats
 }

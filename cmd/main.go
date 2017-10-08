@@ -2,10 +2,10 @@ package main
 
 import (
 	"log"
-	"encoding/json"
-	"fmt"
 	"os"
 	ow "github.com/ThisIsAreku/ow-stats"
+	"encoding/json"
+	"fmt"
 )
 
 func main() {
