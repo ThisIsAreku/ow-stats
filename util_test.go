@@ -16,6 +16,7 @@ var valueTests = []struct {
 	expected float32 // expected result
 }{
 	{"5", 5},
+	{"11,996", 11996},
 	{"50%", 0.5},
 	{"50 %", 0.5},
 	{"01:00:00", 1},
@@ -24,6 +25,7 @@ var valueTests = []struct {
 	{"02:22", 0.0394444465637207},
 	{"1 hour", 1},
 	{"5 hours", 5},
+	{"14 hours", 14},
 	{"30 minutes", 0.5},
 	{"1 minute", 1 / 60.},
 	{"50 seconds", 50 / 3600.},
