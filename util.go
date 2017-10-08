@@ -17,7 +17,8 @@ var normalizeRegex = regexp.MustCompile(`_{2,}`)
 var hourRegex = regexp.MustCompile(`(?P<Val>[0-9]+) hours?`)
 var minuteRegex = regexp.MustCompile(`(?P<Val>[0-9]+) minutes?`)
 var secondRegex = regexp.MustCompile(`(?P<Val>[0-9]+(?:\.[0-9]+)?) seconds?`)
-var percentRegex = regexp.MustCompile(`(?P<Val>[0-9]{1,3})\s?\%`)
+var percentRegex = regexp.MustCompile(`(?P<Val>[0-9]{1,3})\s?%`)
+var pluralizerRegex = regexp.MustCompile(`(?P<Start>_|[^a-z]|^)(?P<Term>blow|boost|kill|assist|barrier|hit|multikill|elimination)(?P<End>$|[^a-z])`)
 
 var t = transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
 
@@ -123,4 +124,13 @@ func SanitizeValue(text string) float32 {
 	log.Printf("Unable to find anything to parse: %s\n", text)
 
 	return 0
+}
+
+func Pluralizer(text string) string {
+	text = strings.ToLower(text)
+	text = pluralizerRegex.ReplaceAllString(text, `${1}${2}s${3}`)
+
+	text = strings.Replace(text, "kills_streak_", "kill_streak_", 1)
+
+	return text
 }

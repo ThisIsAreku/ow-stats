@@ -32,6 +32,28 @@ var valueTests = []struct {
 	{"2.8", 2.8},
 }
 
+var pluralizerTests = []struct {
+	n        string // input
+	expected string // expected result
+}{
+	{"solo_kill", "solo_kills"},
+	{"solo_kills", "solo_kills"},
+	{"final_blow", "final_blows"},
+	{"final_blows", "final_blows"},
+	{"nano_boost_applied", "nano_boosts_applied"},
+	{"nano_boosts_applied", "nano_boosts_applied"},
+	{"final_blows_most_in_game", "final_blows_most_in_game"},
+	{"final_blow_most_in_game", "final_blows_most_in_game"},
+	{"projected_barriers_applied", "projected_barriers_applied"},
+	{"projected_barrier_applied", "projected_barriers_applied"},
+	{"multikills", "multikills"},
+	{"multikill", "multikills"},
+	{"eliminations_most_in_game", "eliminations_most_in_game"},
+	{"elimination_most_in_game", "eliminations_most_in_game"},
+	{"testblow_test", "testblow_test"},
+	{"kill_streak_best", "kill_streak_best"},
+}
+
 func TestSanitizeKey(t *testing.T) {
 	for _, tt := range keyTests {
 		actual := SanitizeKey(tt.n)
@@ -46,6 +68,15 @@ func TestSanitizeValue(t *testing.T) {
 		actual := SanitizeValue(tt.n)
 		if actual != tt.expected {
 			t.Errorf("SanitizeValue(%s): expected %f, actual %f", tt.n, tt.expected, actual)
+		}
+	}
+}
+
+func TestPluralizer(t *testing.T) {
+	for _, tt := range pluralizerTests {
+		actual := Pluralizer(tt.n)
+		if actual != tt.expected {
+			t.Errorf("Pluralizer(%s): expected %s, actual %s", tt.n, tt.expected, actual)
 		}
 	}
 }
