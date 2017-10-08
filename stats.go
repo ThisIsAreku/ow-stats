@@ -25,7 +25,7 @@ type PlayerGamemodeStats struct {
 
 type PlayerOverallStats struct {
 	Level     int     `json:"level"`
-	Comprank  int     `json:"comprank"`
+	Comprank  int     `json:"comprank,omitempty"`
 	Games     int     `json:"games"`
 	WinRate   float32 `json:"win_rate"`
 	Losses    int     `json:"losses"`
