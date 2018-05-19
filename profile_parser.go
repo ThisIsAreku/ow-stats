@@ -137,7 +137,7 @@ func (pp *ProfileParser) parseOverallStats(selection *goquery.Selection) *Player
 				return prestige
 			}
 
-			log.Printf("prestige '%s' was not found (tag is : '%s')\n", prestigeKey, styleAttr)
+			log.Printf("[%s] prestige '%s' was not found (tag is : '%s')\n", pp.battleTag, prestigeKey, styleAttr)
 
 			return 0
 		}(),
