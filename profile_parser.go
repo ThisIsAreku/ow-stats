@@ -6,12 +6,10 @@ import (
 	"regexp"
 	"strings"
 	"fmt"
-	"github.com/parnurzeal/gorequest"
-	"time"
 	"log"
 )
 
-var Request *gorequest.SuperAgent = gorequest.New().Timeout(10 * time.Second).Set("User-Agent", "OW-STATS/1.0")
+var Request = NewHttpClient()
 
 var prestigeRegex = regexp.MustCompile(`(?P<Prestige>0x025[0-9A-F]{13})`)
 
@@ -31,9 +29,9 @@ func (pp *ProfileParser) buildProfileUrl() string {
 }
 
 func (pp *ProfileParser) fetchDocument() error {
-	resp, _, err := Request.Get(pp.buildProfileUrl()).End()
-	if len(err) != 0 {
-		return err[0]
+	resp, err := Request.Get(pp.buildProfileUrl())
+	if err != nil {
+		return err
 	}
 
 	doc, parseErr := goquery.NewDocumentFromResponse(resp)

@@ -4,18 +4,20 @@
 [[projects]]
   name = "github.com/PuerkitoBio/goquery"
   packages = ["."]
-  revision = "e1271ee34c6a305e38566ecd27ae374944907ee9"
-  version = "v1.1.0"
+  revision = "a86ea073017a6beddef78c8659e7224e8ca634b0"
+  version = "v1.4.0"
 
 [[projects]]
   name = "github.com/andybalholm/cascadia"
   packages = ["."]
-  revision = "349dd0209470eabd9514242c688c403c0926d266"
+  revision = "901648c87902174f774fac311d7f176f8647bdaa"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/go-test/deep"
   packages = ["."]
-  revision = "f49763a6ea0a91026be26f8213bebee726b4185f"
+  revision = "6592d9cc0a499ad2d5f574fde80a2b5c5cc3b4f5"
+  version = "v1.0.1"
 
 [[projects]]
   branch = "master"
@@ -32,9 +34,11 @@
 [[projects]]
   name = "github.com/pkg/errors"
   packages = ["."]
-  revision = "2b3a18b5f0fb6b4f9190549597d3f962c02bc5eb"
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
 
 [[projects]]
+  branch = "master"
   name = "golang.org/x/net"
   packages = [
     "html",
@@ -42,7 +46,7 @@
     "idna",
     "publicsuffix"
   ]
-  revision = "a04bdaca5b32abe1c069418fb7088ae607de5bd0"
+  revision = "57065200b4b034a1c8ad54ff77069408c2218ae6"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -63,11 +67,12 @@
     "unicode/norm",
     "unicode/rangetable"
   ]
-  revision = "825fc78a2fd6fa0a5447e300189e3219e05e1f25"
+  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
+  version = "v0.3.0"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "dfdcfa1ea399a7db7a0a8a4969a2c6c9acf72f44dad7fcfdb5709d746a8d4567"
+  inputs-digest = "46c2a65335020e7d0514b8b586d888611325c0d582f3de924109118514323d30"
   solver-name = "gps-cdcl"
   solver-version = 1
