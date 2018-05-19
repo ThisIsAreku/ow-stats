@@ -34,7 +34,8 @@ func (pp *ProfileParser) fetchDocument() error {
 		return err
 	}
 
-	doc, parseErr := goquery.NewDocumentFromResponse(resp)
+	defer resp.Body.Close()
+	doc, parseErr := goquery.NewDocumentFromReader(resp.Body)
 	if parseErr != nil {
 		return parseErr
 	}
