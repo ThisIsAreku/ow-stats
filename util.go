@@ -20,9 +20,9 @@ var secondRegex = regexp.MustCompile(`(?P<Val>[0-9]+(?:\.[0-9]+)?) seconds?`)
 var percentRegex = regexp.MustCompile(`(?P<Val>[0-9]{1,3})\s?%`)
 var pluralizerRegex = regexp.MustCompile(`(?P<Start>_|[^a-z]|^)(?P<Term>blow|boost|kill|assist|barrier|hit|multikill|elimination)(?P<End>$|[^a-z])`)
 
-var t = transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
-
 func SanitizeKey(text string) string {
+	var t = transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
+
 	text = strings.ToLower(text)
 	text, _, _ = transform.String(t, text)
 	text = spaceRegex.ReplaceAllString(text, "_")
