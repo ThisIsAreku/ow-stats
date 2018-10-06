@@ -1,12 +1,12 @@
 package ow_stats
 
 import (
-	"testing"
 	"encoding/json"
-	"github.com/go-test/deep"
-	"github.com/parnurzeal/gorequest"
 	"fmt"
+	"github.com/go-test/deep"
+	"io/ioutil"
 	"os"
+	"testing"
 )
 
 type RegionalProfile struct {
@@ -15,12 +15,17 @@ type RegionalProfile struct {
 
 func TestProfileParser_Parse(t *testing.T) {
 	referenceData := RegionalProfile{}
-	_, b, errs := gorequest.New().Get(fmt.Sprintf("https://owapi.net/api/v3/u/%s/blob", os.Getenv("BATTLETAG"))).End()
-	if len(errs) != 0 {
-		panic(errs[0].Error())
+	r, err := Request.Get(fmt.Sprintf("https://owapi.net/api/v3/u/%s/blob", os.Getenv("BATTLETAG")))
+	if err != nil {
+		panic(err)
 	}
 
-	err := json.Unmarshal([]byte(b), &referenceData)
+	b, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	err = json.Unmarshal(b, &referenceData)
 	if err != nil {
 		panic(err.Error())
 	}

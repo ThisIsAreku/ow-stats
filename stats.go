@@ -1,8 +1,9 @@
 package ow_stats
 
 type Profile struct {
-	Stats  *PlayerStats `json:"stats,omitempty"`
-	Heroes *HeroesStats `json:"heroes,omitempty"`
+	Stats       *PlayerStats `json:"stats,omitempty"`
+	Heroes      *HeroesStats `json:"heroes,omitempty"`
+	UserProfile *ApiPlatform `json:"user_profile"`
 }
 
 // Player
@@ -63,4 +64,14 @@ type HeroGamemodeStats struct {
 	RollingAverage *HeroRollingAverageStats `json:"rolling_average_stats,omitempty"`
 	Specific       *HeroSpecificStats       `json:"hero_stats,omitempty"`
 	General        *HeroGeneralStats        `json:"general_stats,omitempty"`
+}
+
+type ApiPlatform struct {
+	Platform    string `json:"platform"`
+	Id          int    `json:"id"`
+	Name        string `json:"name"`
+	UrlName     string `json:"urlName"`
+	PlayerLevel int    `json:"playerLevel"`
+	Portrait    string `json:"portrait"`
+	IsPublic    bool   `json:"isPublic"`
 }

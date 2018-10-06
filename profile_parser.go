@@ -1,23 +1,23 @@
 package ow_stats
 
 import (
-	"github.com/PuerkitoBio/goquery"
-	"strconv"
-	"regexp"
-	"strings"
+	"encoding/json"
 	"fmt"
-	"log"
+	"github.com/PuerkitoBio/goquery"
+	"io/ioutil"
+	"strconv"
+	"strings"
 )
 
 var Request = NewHttpClient()
 
-var prestigeRegex = regexp.MustCompile(`(?P<Prestige>0x025[0-9A-F]{13})`)
-
 type ProfileParser struct {
-	doc       *goquery.Document
-	platform  string
-	region    string
-	battleTag string
+	doc         *goquery.Document
+	platform    string
+	region      string
+	battleTag   string
+	playerId    string
+	apiPlatform *ApiPlatform
 }
 
 func (pp *ProfileParser) buildProfileUrl() string {
@@ -47,9 +47,11 @@ func (pp *ProfileParser) fetchDocument() error {
 
 func NewProfileParser(region string, battleTag string) *ProfileParser {
 	return &ProfileParser{
-		platform:  "pc",
-		region:    region,
-		battleTag: battleTag,
+		platform:    "pc",
+		region:      region,
+		battleTag:   battleTag,
+		playerId:    "",
+		apiPlatform: nil,
 	}
 }
 
@@ -58,9 +60,46 @@ func (pp *ProfileParser) Parse() (*Profile, error) {
 		return nil, err
 	}
 
+	scriptTag := pp.doc.Find("script").FilterFunction(func(i int, selection *goquery.Selection) bool {
+		return strings.Index(selection.Text(), "window.app.career.init") == 0
+	})
+
+	playerId := ""
+	if scriptTag.Length() == 1 {
+		scriptTagContent := scriptTag.Text()
+		playerId = scriptTagContent[23:strings.Index(scriptTagContent, ",")]
+
+		func() {
+			r, err := Request.Get(fmt.Sprintf("https://playoverwatch.com/fr-fr/career/platforms/%s", playerId))
+			if err != nil {
+				return
+			}
+
+			b, err := ioutil.ReadAll(r.Body)
+			if err != nil {
+				return
+			}
+
+			apiPlatforms := make([]ApiPlatform, 0)
+			err = json.Unmarshal(b, &apiPlatforms)
+			if err != nil {
+				return
+			}
+
+			for _, apiPlatform := range apiPlatforms {
+				if apiPlatform.Platform == pp.platform {
+					pp.apiPlatform = &apiPlatform
+					break
+				}
+			}
+		}()
+
+	}
+
 	return &Profile{
-		Stats:  pp.parseProfileStats(),
-		Heroes: pp.parseHeroesStats(),
+		Stats:       pp.parseProfileStats(),
+		Heroes:      pp.parseHeroesStats(),
+		UserProfile: pp.apiPlatform,
 	}, nil
 }
 
@@ -88,7 +127,6 @@ func (pp *ProfileParser) parseGamemodeStats(selection *goquery.Selection) *Playe
 
 func (pp *ProfileParser) parseOverallStats(selection *goquery.Selection) *PlayerOverallStats {
 	masthead := pp.doc.Find("div.masthead-player").First()
-	playerLevel := masthead.Find("div.player-level").First()
 	statsBoxRows := selection.Find(`div[data-group-id="stats"][data-category-id="0x02E00000FFFFFFFF"] table.data-table`).FilterFunction(func(i int, selection *goquery.Selection) bool {
 		boxTitle := selection.Find("thead h5.stat-title").First().Text()
 		return boxTitle == "Game" || boxTitle == "Miscellaneous"
@@ -122,25 +160,7 @@ func (pp *ProfileParser) parseOverallStats(selection *goquery.Selection) *Player
 			return 0
 		}(),
 
-		Level: func() int {
-			if level, err := strconv.Atoi(playerLevel.Find("div.u-vertical-center").First().Text()); err == nil {
-				return level
-			}
-
-			return 0
-		}(),
-
-		Prestige: func() int {
-			styleAttr := playerLevel.AttrOr("style", "")
-			prestigeKey := prestigeRegex.FindString(styleAttr)
-			if prestige, ok := PRESTIGES[prestigeKey]; ok {
-				return prestige
-			}
-
-			log.Printf("[%s] prestige '%s' was not found (tag is : '%s')\n", pp.battleTag, prestigeKey, styleAttr)
-
-			return 0
-		}(),
+		FullLevel: 0,
 
 		Games:  fnFindStat("Games Played"),
 		Wins:   fnFindStat("Games Won"),
@@ -154,7 +174,12 @@ func (pp *ProfileParser) parseOverallStats(selection *goquery.Selection) *Player
 		overallStats.WinRate = &wr
 	}
 
-	overallStats.FullLevel = overallStats.Prestige*100 + overallStats.Level
+	if pp.apiPlatform != nil {
+		overallStats.FullLevel = pp.apiPlatform.PlayerLevel
+	}
+
+	overallStats.Level = overallStats.FullLevel % 100
+	overallStats.Prestige = overallStats.FullLevel / 100
 
 	return overallStats
 }
