@@ -56,7 +56,7 @@ var pluralizerTests = []struct {
 	{"kill_streak_best", "kill_streak_best"},
 }
 
-func TestSanitizeKey(t *testing.T) {
+func TestUtil_SanitizeKey(t *testing.T) {
 	for _, tt := range keyTests {
 		actual := SanitizeKey(tt.n)
 		if actual != tt.expected {
@@ -65,7 +65,18 @@ func TestSanitizeKey(t *testing.T) {
 	}
 }
 
-func TestSanitizeValue(t *testing.T) {
+func TestUtil_SanitizeKey_Parallel(t *testing.T) {
+	for _, tt := range keyTests {
+		go func(input string, output string) {
+			actual := SanitizeKey(input)
+			if actual != output {
+				t.Errorf("SanitizeKey(%s): expected %s, actual %s", input, output, actual)
+			}
+		}(tt.n, tt.expected)
+	}
+}
+
+func TestUtil_SanitizeValue(t *testing.T) {
 	for _, tt := range valueTests {
 		actual := SanitizeValue(tt.n)
 		if actual != tt.expected {
@@ -74,11 +85,33 @@ func TestSanitizeValue(t *testing.T) {
 	}
 }
 
-func TestPluralizer(t *testing.T) {
+func TestUtil_SanitizeValue_Parallel(t *testing.T) {
+	for _, tt := range valueTests {
+		go func(input string, output float32) {
+			actual := SanitizeValue(input)
+			if actual != output {
+				t.Errorf("SanitizeValue(%s): expected %f, actual %f", input, output, actual)
+			}
+		}(tt.n, tt.expected)
+	}
+}
+
+func TestUtil_Pluralizer(t *testing.T) {
 	for _, tt := range pluralizerTests {
 		actual := Pluralizer(tt.n)
 		if actual != tt.expected {
 			t.Errorf("Pluralizer(%s): expected %s, actual %s", tt.n, tt.expected, actual)
 		}
+	}
+}
+
+func TestUtil_Pluralizer_Parallel(t *testing.T) {
+	for _, tt := range pluralizerTests {
+		go func(input string, output string) {
+			actual := Pluralizer(input)
+			if actual != output {
+				t.Errorf("Pluralizer(%s): expected %s, actual %s", input, output, actual)
+			}
+		}(tt.n, tt.expected)
 	}
 }
