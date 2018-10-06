@@ -1,6 +1,6 @@
 [[constraint]]
   name = "github.com/PuerkitoBio/goquery"
-  version = "1.4.0"
+  version = "1.4"
 
 [prune]
   go-tests = true
